@@ -34,27 +34,27 @@ body {
   transition: background 0.3s ease;
 }
 
-/* Logo turquesa/glitch */
+/* Logo turquesa profesional */
 .logo-fire {
   font-family: 'Bungee', cursive;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
   position: relative;
   display: inline-block;
-  background: linear-gradient(0deg, #00a896 0%, #00d4aa 30%, #00ffcc 60%, #7afff0 90%);
-  background-size: 100% 200%;
+  background: linear-gradient(135deg, #00ffcc 0%, #00d4aa 20%, #ffffff 50%, #00ffcc 80%, #00a896 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 5px rgba(0,255,204,0.85)) drop-shadow(0 0 12px rgba(0,168,150,0.6));
-  animation: fireFlicker 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(0,255,204,0.5)) drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+  animation: logoShimmer 4s ease-in-out infinite;
 }
-@keyframes fireFlicker { 0%,100%{background-position:0 0; filter:drop-shadow(0 0 5px rgba(0,255,204,.85));} 50%{background-position:0 60%; filter:drop-shadow(0 0 12px rgba(0,255,204,1)) drop-shadow(0 0 22px rgba(0,168,150,.8));} }
+@keyframes logoShimmer { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
 .logo-fire::after {
   content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  background: linear-gradient(0deg,#00a896,#00ffcc); text-shadow: 2px 0 #ffd700;
-  clip-path: polygon(0 55%,100% 55%,100% 100%,0 100%);
-  animation: glitchB 2.4s infinite linear alternate-reverse;
+  animation: lightSweep 3s ease-in-out infinite; pointer-events: none;
 }
-@keyframes glitchB { 0%,100%{transform:translate(0,0);} 40%{transform:translate(2px,-1px);} 80%{transform:translate(-2px,1px);} }
+@keyframes lightSweep { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
 
 #loginScreen { min-height: 100vh; background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 #loginScreen::before { content:''; position:absolute; width:200%; height:200%; background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x; animation: wave 10s linear infinite; bottom:0; opacity:0.3; }
@@ -293,7 +293,7 @@ html { scroll-behavior: smooth; }
       <div class="card-body">
         <table id="tablaVendidos" class="table table-striped table-hover" style="width:100%">
           <thead><tr>
-            <th>Número</th><th>Estado</th><th>Cliente</th><th>WhatsApp</th><th>Monto</th><th>Acciones</th>
+            <th>Cliente</th><th>WhatsApp</th><th>Números</th><th>Estado</th><th>Total</th><th>Acciones</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -600,28 +600,64 @@ document.getElementById('searchNumber').addEventListener('input', (e) => {
 });
 document.getElementById('btnRefreshGrid').addEventListener('click', () => { renderizarGridDesdeMapa(); showToast('Grid actualizado', 'success'); });
 
-/* ===== TABLA (ordenada por numero) + 3 BOTONES ===== */
+/* ===== TABLA AGRUPADA POR CLIENTE + 3 BOTONES ===== */
 function actualizarTablaVendidos() {
   if (dataTable) { dataTable.destroy(); dataTable = null; }
   const tbody = document.querySelector('#tablaVendidos tbody');
-  const ordenados = [...ventasData].sort((a, b) => a.numero.localeCompare(b.numero));
 
-  tbody.innerHTML = ordenados.map(v => {
+  // Agrupar por cliente (nombre + whatsapp como key)
+  const grupos = new Map();
+  ventasData.forEach(v => {
+    const key = (v.nombre || 'Sin nombre').toLowerCase().trim() + '|' + (v.whatsapp || v.telefono || '');
+    if (!grupos.has(key)) {
+      grupos.set(key, {
+        nombre: v.nombre || 'Sin nombre',
+        whatsapp: v.whatsapp || v.telefono || '-',
+        numeros: [],
+        comprobanteId: v.comprobanteId || '',
+        totalPagado: 0,
+        totalApartado: 0,
+        tienePagados: false,
+        tieneApartados: false
+      });
+    }
+    const g = grupos.get(key);
+    g.numeros.push(v.numero);
     const est = estadoDe(v);
-    const badge = est === 'pagado'
-      ? '<span class="badge bg-danger">Vendido</span>'
-      : '<span class="badge bg-warning text-dark">Apartado</span>';
-    const pagado = est === 'pagado';
+    if (est === 'pagado') { g.totalPagado += Number(v.precio || configRifa.precio); g.tienePagados = true; }
+    else { g.totalApartado += Number(v.precio || configRifa.precio); g.tieneApartados = true; }
+    if (v.comprobanteId) g.comprobanteId = v.comprobanteId;
+  });
+
+  // Ordenar grupos por nombre
+  const gruposOrdenados = [...grupos.values()].sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  tbody.innerHTML = gruposOrdenados.map(g => {
+    const numerosOrdenados = g.numeros.sort();
+    const badges = numerosOrdenados.map(n => {
+      const est = estadoDe(numerosMap.get(n));
+      const color = est === 'pagado' ? 'bg-danger' : 'bg-warning text-dark';
+      return `<span class="badge ${color} me-1 mb-1">${n}</span>`;
+    }).join('');
+
+    let estadoBadge = '';
+    if (g.tienePagados && g.tieneApartados) estadoBadge = '<span class="badge bg-info">Mixto</span>';
+    else if (g.tienePagados) estadoBadge = '<span class="badge bg-danger">Vendido</span>';
+    else estadoBadge = '<span class="badge bg-warning text-dark">Apartado</span>';
+
+    const total = g.totalPagado + g.totalApartado;
+    const primerNumero = numerosOrdenados[0];
+
     return `<tr>
-      <td><span class="badge bg-primary fs-6">${v.numero}</span></td>
-      <td>${badge}</td>
-      <td>${v.nombre || '-'}</td>
-      <td>${v.whatsapp || v.telefono || '-'}</td>
-      <td>$${v.precio || configRifa.precio}</td>
+      <td><strong>${g.nombre}</strong></td>
+      <td>${g.whatsapp}</td>
+      <td>${badges}</td>
+      <td>${estadoBadge}</td>
+      <td class="fw-bold">$${total.toLocaleString()}</td>
       <td class="text-nowrap">
-        <button class="btn btn-sm btn-warning btn-icon" title="Reenviar ticket de apartado" onclick="accionTicket('${v.numero}','apartado')"><i class="bi bi-hourglass-split"></i></button>
-        <button class="btn btn-sm btn-info btn-icon text-white" title="Enviar recordatorio de pago" onclick="accionTicket('${v.numero}','recordatorio')"><i class="bi bi-bell-fill"></i></button>
-        <button class="btn btn-sm btn-success btn-icon" title="Reenviar ticket pagado" ${pagado?'':'disabled'} onclick="accionTicket('${v.numero}','pagado')"><i class="bi bi-patch-check-fill"></i></button>
+        <button class="btn btn-sm btn-warning btn-icon" title="Reenviar ticket de apartado" onclick="accionTicket('${primerNumero}','apartado')"><i class="bi bi-hourglass-split"></i></button>
+        <button class="btn btn-sm btn-info btn-icon text-white" title="Enviar recordatorio de pago" onclick="accionTicket('${primerNumero}','recordatorio')"><i class="bi bi-bell-fill"></i></button>
+        <button class="btn btn-sm btn-success btn-icon" title="Reenviar ticket pagado" ${g.tienePagados?'':'disabled'} onclick="accionTicket('${primerNumero}','pagado')"><i class="bi bi-patch-check-fill"></i></button>
       </td>
     </tr>`;
   }).join('');

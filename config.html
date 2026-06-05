@@ -33,24 +33,24 @@
 
 body { font-family: 'Poppins','Segoe UI', sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #e0f7fa 50%, #f0faf8 100%); min-height: 100vh; color: var(--dark); transition: background 0.3s ease; }
 
-/* Logo turquesa/glitch */
+/* Logo turquesa profesional */
 .logo-fire {
-  font-family: 'Bungee', cursive; letter-spacing: 1px; position: relative; display: inline-block;
-  background: linear-gradient(0deg, #00a896 0%, #00d4aa 30%, #00ffcc 60%, #7afff0 90%);
-  background-size: 100% 200%;
+  font-family: 'Bungee', cursive; letter-spacing: 3px; position: relative; display: inline-block;
+  background: linear-gradient(135deg, #00ffcc 0%, #00d4aa 20%, #ffffff 50%, #00ffcc 80%, #00a896 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 5px rgba(0,255,204,0.85)) drop-shadow(0 0 12px rgba(0,168,150,0.6));
-  animation: fireFlicker 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(0,255,204,0.5)) drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+  animation: logoShimmer 4s ease-in-out infinite;
 }
-@keyframes fireFlicker { 0%,100%{background-position:0 0; filter:drop-shadow(0 0 5px rgba(0,255,204,.85));} 50%{background-position:0 60%; filter:drop-shadow(0 0 12px rgba(0,255,204,1)) drop-shadow(0 0 22px rgba(0,168,150,.8));} }
+@keyframes logoShimmer { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
 .logo-fire::after {
   content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  background: linear-gradient(0deg,#00a896,#00ffcc); text-shadow: 2px 0 #ffd700;
-  clip-path: polygon(0 55%,100% 55%,100% 100%,0 100%);
-  animation: glitchB 2.4s infinite linear alternate-reverse;
+  animation: lightSweep 3s ease-in-out infinite; pointer-events: none;
 }
-@keyframes glitchB { 0%,100%{transform:translate(0,0);} 40%{transform:translate(2px,-1px);} 80%{transform:translate(-2px,1px);} }
+@keyframes lightSweep { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
 
 .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--gradient); position: relative; overflow: hidden; }
 .login-container::before { content:''; position:absolute; width:500px; height:500px; background:rgba(255,255,255,.1); border-radius:50%; top:-250px; right:-250px; animation:float 6s ease-in-out infinite; }
