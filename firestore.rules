@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== CONFIGURACIÓN DE LA RIFA =====
+    // Lectura pública (index.html la necesita sin login).
+    // Escritura solo para el administrador autenticado (config.html / admin.html).
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ===== NÚMEROS DE LA RIFA =====
+    match /numeros/{numero} {
+
+      // Cualquiera puede ver el estado de los números.
+      allow read: if true;
+
+      // CREAR (cliente sin login apartando desde index.html):
+      // solo se permite si el número se crea con estado "apartado"
+      // y trae los datos mínimos del cliente.
+      allow create: if request.resource.data.estado == 'apartado'
+                    && request.resource.data.keys().hasAll(['nombre', 'telefono', 'estado'])
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() > 2;
+
+      // ACTUALIZAR:
+      //  - El administrador autenticado puede hacer cualquier cambio (cobrar/marcar pagado, etc.).
+      //  - El cliente sin login SOLO puede actualizar un número que sigue "apartado"
+      //    (por ejemplo para guardar la URL del ticket), sin cambiar al dueño,
+      //    el precio, el comprobante ni escalar a "pagado".
+      allow update: if request.auth != null
+                    || (
+                         resource.data.estado == 'apartado'
+                         && request.resource.data.estado == 'apartado'
+                         && request.resource.data.nombre == resource.data.nombre
+                         && request.resource.data.telefono == resource.data.telefono
+                         && request.resource.data.precio == resource.data.precio
+                         && request.resource.data.comprobanteId == resource.data.comprobanteId
+                       );
+
+      // BORRAR (finalizar/reiniciar rifa): solo administrador.
+      allow delete: if request.auth != null;
+    }
+
+    // ===== TODO LO DEMÁS BLOQUEADO =====
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

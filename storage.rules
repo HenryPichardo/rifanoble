@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ===== TICKETS (apartado / recordatorio / pagado) =====
+    // Lectura pública (el enlace se envía por WhatsApp).
+    // Escritura abierta SOLO para imágenes pequeñas:
+    // el index.html sube el ticket de apartado sin estar autenticado.
+    match /tickets/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.resource.size < 2 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // ===== IMÁGENES DEL PREMIO (subidas desde config.html) =====
+    // Lectura pública, escritura solo administrador autenticado.
+    match /articulos/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // ===== RESTO DEL BUCKET =====
+    // Lectura pública (permite ver la imagen del premio que ya está en la raíz).
+    // Escritura denegada.
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

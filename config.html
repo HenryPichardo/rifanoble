@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#00a896">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Config Panel - RIFANOBLE</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #00a896;
+  --primary-dark: #028090;
+  --secondary: #f77f00;
+  --accent: #fcbf49;
+  --danger: #d62828;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --gradient: linear-gradient(135deg, #00a896 0%, #02c39a 50%, #05668d 100%);
+  --turquesa: linear-gradient(0deg,#00a896,#00d4aa,#00ffcc,#7afff0);
+  --shadow: 0 10px 30px rgba(0, 168, 150, 0.15);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Poppins','Segoe UI', sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #e0f7fa 50%, #f0faf8 100%); min-height: 100vh; color: var(--dark); transition: background 0.3s ease; }
+
+/* Logo turquesa/glitch */
+.logo-fire {
+  font-family: 'Bungee', cursive; letter-spacing: 1px; position: relative; display: inline-block;
+  background: linear-gradient(0deg, #00a896 0%, #00d4aa 30%, #00ffcc 60%, #7afff0 90%);
+  background-size: 100% 200%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 5px rgba(0,255,204,0.85)) drop-shadow(0 0 12px rgba(0,168,150,0.6));
+  animation: fireFlicker 2.2s ease-in-out infinite;
+}
+@keyframes fireFlicker { 0%,100%{background-position:0 0; filter:drop-shadow(0 0 5px rgba(0,255,204,.85));} 50%{background-position:0 60%; filter:drop-shadow(0 0 12px rgba(0,255,204,1)) drop-shadow(0 0 22px rgba(0,168,150,.8));} }
+.logo-fire::after {
+  content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  background: linear-gradient(0deg,#00a896,#00ffcc); text-shadow: 2px 0 #ffd700;
+  clip-path: polygon(0 55%,100% 55%,100% 100%,0 100%);
+  animation: glitchB 2.4s infinite linear alternate-reverse;
+}
+@keyframes glitchB { 0%,100%{transform:translate(0,0);} 40%{transform:translate(2px,-1px);} 80%{transform:translate(-2px,1px);} }
+
+.login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--gradient); position: relative; overflow: hidden; }
+.login-container::before { content:''; position:absolute; width:500px; height:500px; background:rgba(255,255,255,.1); border-radius:50%; top:-250px; right:-250px; animation:float 6s ease-in-out infinite; }
+.login-container::after { content:''; position:absolute; width:300px; height:300px; background:rgba(255,255,255,.1); border-radius:50%; bottom:-150px; left:-150px; animation:float 8s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+
+.login-card { background: rgba(255,255,255,0.97); border-radius: 24px; box-shadow: 0 24px 64px rgba(0,168,150,0.2); padding: 40px; width: 100%; max-width: 420px; position: relative; z-index: 1; animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1); backdrop-filter: blur(10px); }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px) scale(0.96);} to{opacity:1;transform:translateY(0) scale(1);} }
+.login-header { text-align: center; margin-bottom: 30px; }
+.login-header h2 { margin: 8px 0 4px; }
+.login-header p { color: #6c757d; font-size: 14px; }
+
+.form-control, .form-select { border: 2px solid #e9ecef; border-radius: 10px; padding: 12px 15px; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,168,150,0.12); transform: translateY(-1px); }
+
+.btn-login { background: var(--gradient); border: none; border-radius: 12px; padding: 14px; font-weight: 700; color: white; width: 100%; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 4px 16px rgba(0,168,150,0.3); }
+.btn-login:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,168,150,0.4); }
+.btn-login:active { transform: translateY(0) scale(0.97); }
+
+.error-message { background: #ffe5e5; color: var(--danger); padding: 12px; border-radius: 10px; font-size: 14px; margin-top: 15px; display: none; animation: shake 0.5s; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
+
+.dashboard { display: none; animation: fadeIn 0.5s ease-in; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+
+.navbar { background: var(--gradient); box-shadow: 0 4px 20px rgba(0,168,150,0.2); padding: 15px 0; }
+.navbar-brand { color: white !important; font-weight: 700; font-size: 24px; display: flex; align-items: center; gap: 10px; }
+.btn-logout { background: rgba(255,255,255,0.2); border: 2px solid white; color: white; border-radius: 10px; padding: 8px 20px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.btn-logout:hover { background: white; color: var(--primary); transform: translateY(-2px); }
+
+.main-content { padding: 30px 0; }
+.section-card { background: white; border-radius: 20px; box-shadow: var(--shadow-sm); padding: 28px; margin-bottom: 25px; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.section-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid var(--primary); }
+.section-header i { font-size: 24px; color: var(--primary); }
+.section-header h4 { margin: 0; color: var(--primary-dark); font-weight: 700; }
+
+.form-label { font-weight: 600; color: var(--primary-dark); margin-bottom: 8px; }
+.btn-primary-custom { background: var(--gradient); border: none; border-radius: 12px; padding: 14px 30px; font-weight: 700; color: white; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 4px 16px rgba(0,168,150,0.25); }
+.btn-primary-custom:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,168,150,0.35); color: white; }
+.btn-primary-custom:active { transform: translateY(0) scale(0.97); }
+.btn-danger-custom { background: var(--danger); border: none; border-radius: 12px; padding: 14px 30px; font-weight: 700; color: white; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.btn-danger-custom:hover { background: #b71c1c; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(214,40,40,0.3); }
+
+.preview-container { position: sticky; top: 20px; }
+.preview-iframe { width: 100%; height: 600px; border: 3px solid var(--primary); border-radius: 16px; background: white; box-shadow: 0 8px 30px rgba(0,168,150,0.1); }
+.image-preview { max-width: 100%; border-radius: 12px; margin-top: 15px; box-shadow: var(--shadow-sm); display: none; transition: opacity 0.3s ease; }
+.upload-progress { display: none; margin-top: 10px; }
+.loading-spinner { display: none; text-align: center; padding: 20px; }
+.success-alert { position: fixed; top: 80px; right: 20px; z-index: 9999; min-width: 300px; animation: slideInRight 0.5s cubic-bezier(0.4,0,0.2,1); border-radius: 12px; border: none; }
+@keyframes slideInRight { from{transform:translateX(400px);opacity:0;} to{transform:translateX(0);opacity:1;} }
+
+/* Smooth scrolling */
+html { scroll-behavior: smooth; }
+
+/* Selector de fondo */
+.fondo-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 12px; }
+.fondo-opt { cursor: pointer; border-radius: 14px; overflow: hidden; border: 3px solid transparent; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); position: relative; }
+.fondo-opt:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,168,150,0.2); }
+.fondo-opt.active { border-color: var(--secondary); box-shadow: 0 6px 18px rgba(247,127,0,0.4); }
+.fondo-thumb { height: 70px; display: flex; align-items: flex-end; justify-content: center; color: #fff; font-weight: 700; font-size: 0.8rem; padding-bottom: 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+.fondo-opt.active::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 4px; right: 6px; color: #fff; background: var(--secondary); border-radius: 50%; width: 22px; height: 22px; display:flex; align-items:center; justify-content:center; font-size: 0.7rem; }
+.thumb-petalos { background: radial-gradient(circle at 30% 20%, #ff0099, #1a0033); }
+.thumb-burbujas { background: radial-gradient(circle at 50% 80%, #00ffcc, #023); }
+.thumb-estrellas { background: radial-gradient(circle at 50% 30%, #2a2a5a, #050014); }
+.thumb-aurora { background: conic-gradient(from 0deg, #ff0099, #00ffcc, #ffd700, #7b2fff, #ff0099); }
+.thumb-neon { background: linear-gradient(#0a0015,#0a0015), repeating-linear-gradient(0deg, #00ffcc22 0 2px, transparent 2px 14px); }
+
+@media (max-width: 768px) {
+  .login-card { padding: 30px 20px; }
+  .section-card { padding: 20px 15px; }
+  .preview-iframe { height: 400px; }
+  .fondo-options { grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); }
+  .btn-primary-custom, .btn-danger-custom { padding: 12px 20px; font-size: 0.9rem; }
+}
+
+/* Smooth transitions on all elements */
+*, *::before, *::after { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen" class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fas fa-ticket-alt" style="font-size:42px;background:var(--turquesa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;"></i>
+      <h2><span class="logo-fire" data-text="RIFANOBLE" style="font-size:1.8rem;">RIFANOBLE</span></h2>
+      <p>Panel de Configuración</p>
+    </div>
+    <form id="loginForm">
+      <div class="mb-3">
+        <label class="form-label"><i class="fas fa-envelope me-2"></i>Email</label>
+        <input type="email" class="form-control" id="email" placeholder="admin@rifanoble.com" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label"><i class="fas fa-lock me-2"></i>Contraseña</label>
+        <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-login"><i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión</button>
+      <div id="errorMessage" class="error-message"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="dashboard">
+  <nav class="navbar">
+    <div class="container-fluid px-4">
+      <span class="navbar-brand"><span class="logo-fire" data-text="RIFANOBLE">RIFANOBLE</span> Config</span>
+      <button class="btn btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <div class="container-fluid main-content">
+    <div class="row">
+      <div class="col-lg-6">
+        <!-- Configuracion -->
+        <div class="section-card">
+          <div class="section-header"><i class="fas fa-cog"></i><h4>Configuración de Rifa</h4></div>
+          <form id="configForm">
+            <div class="mb-3">
+              <label class="form-label">Título de la Rifa</label>
+              <input type="text" class="form-control" id="titulo" placeholder="Ej: Gran Rifa Tropical" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción / Premio</label>
+              <textarea class="form-control" id="descripcion" rows="3" placeholder="Describe el premio principal..." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL de la Foto del Premio</label>
+              <input type="url" class="form-control" id="fotoUrl" placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Subir Foto del Premio</label>
+              <input type="file" class="form-control" id="fotoFile" accept="image/*">
+              <div class="progress upload-progress" id="uploadProgress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%"></div>
+              </div>
+              <img id="imagePreview" class="image-preview" alt="Preview">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Fecha del Sorteo</label>
+                <input type="datetime-local" class="form-control" id="fechaRifa" required>
+                <small class="text-muted"><i class="fas fa-info-circle"></i> Lotería Nacional Dominicana · Domingos 6:00 PM</small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Precio por Número ($)</label>
+                <input type="number" class="form-control" id="precio" min="0" step="0.01" placeholder="10.00" required>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">WhatsApp Contacto (recibe apartados)</label>
+                <input type="tel" class="form-control" id="whatsapp" placeholder="18292778433" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email Contacto</label>
+                <input type="email" class="form-control" id="emailContacto" placeholder="contacto@rifa.com" required>
+              </div>
+            </div>
+            <div class="loading-spinner" id="saveSpinner"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Guardando...</span></div></div>
+            <button type="submit" class="btn btn-primary-custom w-100"><i class="fas fa-save me-2"></i>Guardar Configuración</button>
+          </form>
+        </div>
+
+        <!-- Fondo animado del index -->
+        <div class="section-card">
+          <div class="section-header"><i class="fas fa-wand-magic-sparkles"></i><h4>Fondo Animado del Index</h4></div>
+          <p class="text-muted mb-3">Elige el fondo animado de la página principal. Siempre será un fondo en movimiento.</p>
+          <div class="fondo-options" id="fondoOptions">
+            <div class="fondo-opt" data-fondo="petalos"><div class="fondo-thumb thumb-petalos">Pétalos</div></div>
+            <div class="fondo-opt" data-fondo="burbujas"><div class="fondo-thumb thumb-burbujas">Burbujas</div></div>
+            <div class="fondo-opt" data-fondo="estrellas"><div class="fondo-thumb thumb-estrellas">Estrellas</div></div>
+            <div class="fondo-opt" data-fondo="aurora"><div class="fondo-thumb thumb-aurora">Aurora</div></div>
+            <div class="fondo-opt" data-fondo="neon"><div class="fondo-thumb thumb-neon">Neón Grid</div></div>
+          </div>
+          <button class="btn btn-primary-custom w-100 mt-3" id="btnGuardarFondo"><i class="fas fa-paint-roller me-2"></i>Aplicar Fondo</button>
+        </div>
+
+        <!-- Gestion -->
+        <div class="section-card">
+          <div class="section-header"><i class="fas fa-redo-alt"></i><h4>Gestión de Rifa</h4></div>
+          <p class="text-muted mb-3">Reinicia la rifa actual borrando todos los números apartados y vendidos.</p>
+          <button class="btn btn-danger-custom w-100" id="nuevaRifaBtn"><i class="fas fa-exclamation-triangle me-2"></i>Crear Nueva Rifa</button>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="section-card preview-container">
+          <div class="section-header"><i class="fas fa-eye"></i><h4>Vista Previa en Vivo</h4></div>
+          <iframe id="previewFrame" class="preview-iframe" src="about:blank"></iframe>
+          <button class="btn btn-primary-custom w-100 mt-3" id="refreshPreviewBtn"><i class="fas fa-sync-alt me-2"></i>Actualizar Preview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="alertContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+
+/* ===== CONFIG FIREBASE (INTACTO) ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyC0BKUzFS4QmWmPF9vqFWevBlJN6Wudeb0",
+  authDomain: "rifanoble.firebaseapp.com",
+  projectId: "rifanoble",
+  storageBucket: "rifanoble.firebasestorage.app",
+  messagingSenderId: "667777602408",
+  appId: "1:667777602408:web:80b8957b1de0ebc122bcdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const loginScreen = document.getElementById('loginScreen');
+const dashboard = document.getElementById('dashboard');
+const loginForm = document.getElementById('loginForm');
+const errorMessage = document.getElementById('errorMessage');
+const logoutBtn = document.getElementById('logoutBtn');
+const configForm = document.getElementById('configForm');
+const fotoFile = document.getElementById('fotoFile');
+const fotoUrl = document.getElementById('fotoUrl');
+const imagePreview = document.getElementById('imagePreview');
+const uploadProgress = document.getElementById('uploadProgress');
+const nuevaRifaBtn = document.getElementById('nuevaRifaBtn');
+const previewFrame = document.getElementById('previewFrame');
+const refreshPreviewBtn = document.getElementById('refreshPreviewBtn');
+
+let fondoSeleccionado = 'petalos';
+
+/* ===== AUTH ===== */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginScreen.style.display = 'none';
+    dashboard.style.display = 'block';
+    loadConfig();
+    updatePreview();
+  } else {
+    loginScreen.style.display = 'flex';
+    dashboard.style.display = 'none';
+  }
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorMessage.style.display = 'none';
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { showError('Por favor completa todos los campos'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    showAlert('¡Inicio de sesión exitoso!', 'success');
+  } catch (error) {
+    let msg = 'Error al iniciar sesión';
+    if (error.code === 'auth/invalid-email') msg = 'Email inválido';
+    else if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
+    else if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
+    else if (error.code === 'auth/invalid-credential') msg = 'Credenciales inválidas';
+    else if (error.code === 'auth/too-many-requests') msg = 'Demasiados intentos. Intenta más tarde';
+    showError(msg);
+  }
+});
+
+logoutBtn.addEventListener('click', async () => {
+  try { await signOut(auth); showAlert('Sesión cerrada correctamente', 'info'); }
+  catch (e) { console.error(e); }
+});
+
+/* ===== CARGAR CONFIG (config/actual) ===== */
+async function loadConfig() {
+  try {
+    const docRef = doc(db, 'config', 'actual');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      document.getElementById('titulo').value = data.titulo || '';
+      document.getElementById('descripcion').value = data.descripcion || '';
+      document.getElementById('fotoUrl').value = data.fotoUrl || '';
+      document.getElementById('fechaRifa').value = data.fechaRifa || '';
+      document.getElementById('precio').value = data.precio || '';
+      document.getElementById('whatsapp').value = data.whatsapp || '';
+      document.getElementById('emailContacto').value = data.email || '';
+      fondoSeleccionado = data.fondo || 'petalos';
+      marcarFondoActivo(fondoSeleccionado);
+      if (data.fotoUrl) { imagePreview.src = data.fotoUrl; imagePreview.style.display = 'block'; }
+    } else {
+      marcarFondoActivo('petalos');
+    }
+  } catch (error) {
+    console.error('Error cargando configuración:', error);
+    showAlert('Error al cargar configuración', 'danger');
+  }
+}
+
+/* ===== SUBIDA DE IMAGEN (INTACTO) ===== */
+fotoFile.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showAlert('Por favor selecciona una imagen válida', 'warning'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => { imagePreview.src = ev.target.result; imagePreview.style.display = 'block'; };
+  reader.readAsDataURL(file);
+
+  uploadProgress.style.display = 'block';
+  const progressBar = uploadProgress.querySelector('.progress-bar');
+  try {
+    const storageRef = ref(storage, `articulos/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on('state_changed',
+      (snapshot) => { const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100; progressBar.style.width = p + '%'; progressBar.textContent = Math.round(p) + '%'; },
+      (error) => { console.error('Error al subir imagen:', error); showAlert('Error al subir la imagen', 'danger'); uploadProgress.style.display = 'none'; },
+      async () => { const url = await getDownloadURL(uploadTask.snapshot.ref); fotoUrl.value = url; uploadProgress.style.display = 'none'; showAlert('Imagen subida exitosamente', 'success'); }
+    );
+  } catch (error) { console.error(error); uploadProgress.style.display = 'none'; }
+});
+
+/* ===== GUARDAR CONFIG (NO se toca lógica del título) ===== */
+configForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const saveSpinner = document.getElementById('saveSpinner');
+  saveSpinner.style.display = 'block';
+  try {
+    const configData = {
+      titulo: document.getElementById('titulo').value.trim(),
+      descripcion: document.getElementById('descripcion').value.trim(),
+      fotoUrl: document.getElementById('fotoUrl').value.trim(),
+      fechaRifa: document.getElementById('fechaRifa').value,
+      precio: parseFloat(document.getElementById('precio').value),
+      whatsapp: document.getElementById('whatsapp').value.trim(),
+      email: document.getElementById('emailContacto').value.trim(),
+      fondo: fondoSeleccionado,
+      actualizacion: serverTimestamp()
+    };
+    await setDoc(doc(db, 'config', 'actual'), configData, { merge: true });
+    showAlert('Configuración guardada exitosamente', 'success');
+    updatePreview();
+  } catch (error) {
+    console.error('Error al guardar:', error);
+    showAlert('Error al guardar configuración', 'danger');
+  } finally { saveSpinner.style.display = 'none'; }
+});
+
+/* ===== SELECTOR DE FONDO ===== */
+function marcarFondoActivo(tipo) {
+  document.querySelectorAll('.fondo-opt').forEach(o => o.classList.toggle('active', o.dataset.fondo === tipo));
+}
+document.querySelectorAll('.fondo-opt').forEach(opt => {
+  opt.addEventListener('click', () => { fondoSeleccionado = opt.dataset.fondo; marcarFondoActivo(fondoSeleccionado); });
+});
+document.getElementById('btnGuardarFondo').addEventListener('click', async () => {
+  try {
+    await setDoc(doc(db, 'config', 'actual'), { fondo: fondoSeleccionado }, { merge: true });
+    showAlert('Fondo aplicado al index', 'success');
+    updatePreview();
+  } catch (e) { console.error(e); showAlert('Error al aplicar fondo', 'danger'); }
+});
+
+/* ===== NUEVA RIFA (sincronizado con coleccion 'numeros') ===== */
+nuevaRifaBtn.addEventListener('click', async () => {
+  if (!confirm('¿Estás seguro? Esto borrará TODOS los números apartados y vendidos. Esta acción no se puede deshacer.')) return;
+  if (!confirm('Confirma nuevamente: ¿Borrar todos los números y reiniciar la rifa?')) return;
+
+  nuevaRifaBtn.disabled = true;
+  nuevaRifaBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Borrando...';
+  try {
+    const snapshot = await getDocs(collection(db, 'numeros'));
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((d) => batch.delete(doc(db, 'numeros', d.id)));
+    await batch.commit();
+    showAlert(`Nueva rifa creada. Se eliminaron ${snapshot.size} números`, 'success');
+    updatePreview();
+  } catch (error) {
+    console.error('Error al reiniciar rifa:', error);
+    showAlert('Error al crear nueva rifa', 'danger');
+  } finally {
+    nuevaRifaBtn.disabled = false;
+    nuevaRifaBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Crear Nueva Rifa';
+  }
+});
+
+/* ===== PREVIEW ===== */
+function updatePreview() {
+  previewFrame.src = 'index.html?t=' + Date.now();
+}
+refreshPreviewBtn.addEventListener('click', updatePreview);
+
+/* ===== HELPERS ===== */
+function showError(message) {
+  errorMessage.textContent = message;
+  errorMessage.style.display = 'block';
+  setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
+}
+function showAlert(message, type = 'success') {
+  const alertContainer = document.getElementById('alertContainer');
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type} alert-dismissible fade show success-alert`;
+  alert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+  alertContainer.appendChild(alert);
+  setTimeout(() => alert.remove(), 4000);
+}
+
+fotoUrl.addEventListener('input', (e) => {
+  if (e.target.value) { imagePreview.src = e.target.value; imagePreview.style.display = 'block'; }
+});
+</script>
+</body>
+</html>
