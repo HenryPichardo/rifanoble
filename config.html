@@ -113,10 +113,11 @@ html { scroll-behavior: smooth; }
 .fondo-opt.active { border-color: var(--secondary); box-shadow: 0 6px 18px rgba(247,127,0,0.4); }
 .fondo-thumb { height: 70px; display: flex; align-items: flex-end; justify-content: center; color: #fff; font-weight: 700; font-size: 0.8rem; padding-bottom: 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 .fondo-opt.active::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 4px; right: 6px; color: #fff; background: var(--secondary); border-radius: 50%; width: 22px; height: 22px; display:flex; align-items:center; justify-content:center; font-size: 0.7rem; }
-.thumb-petalos { background: radial-gradient(circle at 30% 20%, #ff0099, #1a0033); }
-.thumb-burbujas { background: radial-gradient(circle at 50% 80%, #00ffcc, #023); }
-.thumb-estrellas { background: radial-gradient(circle at 50% 30%, #2a2a5a, #050014); }
+.thumb-galaxia { background: radial-gradient(circle at 30% 30%, #7b2fff, #0a0015), radial-gradient(circle at 70% 60%, #ff0099, #1a0033); }
+.thumb-liquido { background: linear-gradient(135deg, #00ffcc44, #ff009944, #7b2fff44), #0a0020; }
+.thumb-luciernagas { background: radial-gradient(circle at 50% 50%, #1a1a3e, #050014); }
 .thumb-aurora { background: conic-gradient(from 0deg, #ff0099, #00ffcc, #ffd700, #7b2fff, #ff0099); }
+.thumb-matrix { background: linear-gradient(#000a05, #001a0f); }
 .thumb-neon { background: linear-gradient(#0a0015,#0a0015), repeating-linear-gradient(0deg, #00ffcc22 0 2px, transparent 2px 14px); }
 
 @media (max-width: 768px) {
@@ -223,10 +224,11 @@ html { scroll-behavior: smooth; }
           <div class="section-header"><i class="fas fa-wand-magic-sparkles"></i><h4>Fondo Animado del Index</h4></div>
           <p class="text-muted mb-3">Elige el fondo animado de la página principal. Siempre será un fondo en movimiento.</p>
           <div class="fondo-options" id="fondoOptions">
-            <div class="fondo-opt" data-fondo="petalos"><div class="fondo-thumb thumb-petalos">Pétalos</div></div>
-            <div class="fondo-opt" data-fondo="burbujas"><div class="fondo-thumb thumb-burbujas">Burbujas</div></div>
-            <div class="fondo-opt" data-fondo="estrellas"><div class="fondo-thumb thumb-estrellas">Estrellas</div></div>
+            <div class="fondo-opt" data-fondo="galaxia"><div class="fondo-thumb thumb-galaxia">Galaxia</div></div>
+            <div class="fondo-opt" data-fondo="liquido"><div class="fondo-thumb thumb-liquido">Líquido</div></div>
+            <div class="fondo-opt" data-fondo="luciernagas"><div class="fondo-thumb thumb-luciernagas">Luciérnagas</div></div>
             <div class="fondo-opt" data-fondo="aurora"><div class="fondo-thumb thumb-aurora">Aurora</div></div>
+            <div class="fondo-opt" data-fondo="matrix"><div class="fondo-thumb thumb-matrix">Matrix</div></div>
             <div class="fondo-opt" data-fondo="neon"><div class="fondo-thumb thumb-neon">Neón Grid</div></div>
           </div>
           <button class="btn btn-primary-custom w-100 mt-3" id="btnGuardarFondo"><i class="fas fa-paint-roller me-2"></i>Aplicar Fondo</button>
@@ -343,11 +345,11 @@ async function loadConfig() {
       document.getElementById('precio').value = data.precio || '';
       document.getElementById('whatsapp').value = data.whatsapp || '';
       document.getElementById('emailContacto').value = data.email || '';
-      fondoSeleccionado = data.fondo || 'petalos';
+      fondoSeleccionado = data.fondo || 'galaxia';
       marcarFondoActivo(fondoSeleccionado);
       if (data.fotoUrl) { imagePreview.src = data.fotoUrl; imagePreview.style.display = 'block'; }
     } else {
-      marcarFondoActivo('petalos');
+      marcarFondoActivo('galaxia');
     }
   } catch (error) {
     console.error('Error cargando configuración:', error);
