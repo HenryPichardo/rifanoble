@@ -127,10 +127,22 @@ body {
 ::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
 ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--fire-1), var(--fire-2)); border-radius: 8px; }
 
+@media (max-width: 768px) {
+  .cd-item .n { font-size: 1.5rem; }
+  .btn-fire, .btn-ghost { padding: 13px 22px; font-size: 1rem; }
+  .watermark { font-size: 40vw; }
+}
 @media (max-width: 480px) {
   .num-grid { grid-template-columns: repeat(5,1fr); gap: 8px; }
   .num { font-size: .9rem; border-radius: 12px; }
-  .brand-name { font-size: 1.4rem; }
+  .brand-name { font-size: 1.35rem; letter-spacing: 2px; }
+  .brand-ico { width: 30px; height: 30px; }
+  .cd-item { padding: 12px 4px; border-radius: 13px; }
+  .cd-item .n { font-size: 1.35rem; }
+  .glass, .glass-fire { border-radius: 18px; }
+  .nav-pill { padding: 8px 14px; font-size: .82rem; }
+  .float-card { padding: 30px 20px 24px; }
+  .hero-cta .btn-fire, .hero-cta .btn-ghost { width: 100%; }
 }
 </style>
 </head>
@@ -176,30 +188,30 @@ body {
     <!-- Texto -->
     <div>
       <p class="eyebrow mb-5"><i class="fas fa-star mr-2"></i>Sorteo · Lotería Nacional Dominicana</p>
-      <h1 class="serif text-[2.7rem] md:text-6xl font-700 leading-[1.05] mb-5" style="font-weight:700">
+      <h1 class="serif text-[2.2rem] sm:text-5xl md:text-6xl font-700 leading-[1.05] mb-5" style="font-weight:700">
         <span id="tituloRifa">Tu Suerte</span><br />
         <span class="italic-accent">Comienza Aquí</span>
       </h1>
       <p id="descripcionRifa" class="text-gray-300 text-base md:text-lg max-w-md mb-7">Aparta tu número favorito y participa por premios increíbles. Transparente, seguro y emocionante.</p>
 
-      <div class="flex flex-wrap items-center gap-4 mb-9">
+      <div class="hero-cta flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-4 mb-9">
         <button onclick="document.getElementById('numeros').scrollIntoView()" class="btn-fire"><i class="fas fa-bolt"></i> Apartar mi número</button>
-        <a id="footWaHero" href="https://wa.me/18292778433" target="_blank" class="btn-ghost"><i class="fab fa-whatsapp text-xl"></i> Contactar</a>
+        <a id="footWaHero" href="https://wa.me/18292778433" target="_blank" class="btn-ghost justify-center"><i class="fab fa-whatsapp text-xl"></i> Contactar</a>
       </div>
 
       <!-- Stats -->
-      <div class="flex flex-wrap gap-4">
-        <div class="glass glass-fire px-6 py-4 rounded-2xl">
-          <div class="serif text-3xl font-700 fire-text"><span id="statDisp">100</span></div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Disponibles</div>
+      <div class="grid grid-cols-3 gap-3 sm:gap-4">
+        <div class="glass glass-fire px-3 py-4 sm:px-6 rounded-2xl text-center sm:text-left">
+          <div class="serif text-2xl sm:text-3xl font-700 fire-text"><span id="statDisp">100</span></div>
+          <div class="text-[.65rem] sm:text-xs text-gray-400 uppercase tracking-wider mt-1">Disponibles</div>
         </div>
-        <div class="glass glass-fire px-6 py-4 rounded-2xl">
-          <div class="serif text-3xl font-700 fire-text"><span id="precioNumero">$0</span></div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Por número</div>
+        <div class="glass glass-fire px-3 py-4 sm:px-6 rounded-2xl text-center sm:text-left">
+          <div class="serif text-2xl sm:text-3xl font-700 fire-text"><span id="precioNumero">$0</span></div>
+          <div class="text-[.65rem] sm:text-xs text-gray-400 uppercase tracking-wider mt-1">Por número</div>
         </div>
-        <div class="glass glass-fire px-6 py-4 rounded-2xl">
-          <div class="serif text-3xl font-700 fire-text"><span id="statApart">0</span></div>
-          <div class="text-xs text-gray-400 uppercase tracking-wider mt-1">Apartados</div>
+        <div class="glass glass-fire px-3 py-4 sm:px-6 rounded-2xl text-center sm:text-left">
+          <div class="serif text-2xl sm:text-3xl font-700 fire-text"><span id="statApart">0</span></div>
+          <div class="text-[.65rem] sm:text-xs text-gray-400 uppercase tracking-wider mt-1">Apartados</div>
         </div>
       </div>
     </div>
@@ -368,6 +380,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const FALLBACK_IMG = 'https://firebasestorage.googleapis.com/v0/b/rifanoble.firebasestorage.app/o/samsung_a06_5g_optimized.webp?alt=media&token=e43af199-5a69-4052-ad23-1b0a6bd2b7f8';
+const DEFAULT_VIDEO = 'https://firebasestorage.googleapis.com/v0/b/rifanoble.firebasestorage.app/o/sin%20marca%20de%20agua.mp4?alt=media&token=50c36678-401e-4e55-be4e-cb1ee735a990';
 const ADMIN_WA_DEFAULT = '18292778433';
 const TOTAL = 100, MAX_SEL = 5;
 
@@ -400,8 +413,12 @@ function initParticles() {
 }
 function setVideo(url) {
   const v=$('bgVideo'), fb=$('bgFallback');
-  if (url){ v.src=url; v.addEventListener('loadeddata',()=>{ v.classList.add('ready'); fb.style.opacity='0.2'; },{once:true}); v.play().catch(()=>{}); }
-  else { v.classList.remove('ready'); fb.style.opacity='0.55'; }
+  if (url){
+    v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute('muted',''); v.setAttribute('playsinline','');
+    if (v.src !== url) v.src = url;
+    v.addEventListener('loadeddata',()=>{ v.classList.add('ready'); fb.style.opacity='0.15'; },{once:true});
+    v.play().catch(()=>{});
+  } else { v.classList.remove('ready'); v.removeAttribute('src'); v.load && v.load(); fb.style.opacity='0.55'; }
 }
 function aplicarFuentes() {
   if (cfg.fontBody) document.documentElement.style.setProperty('--font-body', cfg.fontBody);
@@ -419,8 +436,9 @@ function renderConfig(c) {
   if (cfg.fechaRifa) { fechaSorteo = new Date(cfg.fechaRifa); $('fechaRifa').textContent = fechaSorteo.toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'}); startCountdown(); }
   const wa = adminWa(); $('footWa').href = `https://wa.me/${wa}`; $('footWaHero').href = `https://wa.me/${wa}`;
   if (cfg.email) { $('footMail').href = `mailto:${cfg.email}`; $('footMail').querySelector('span').textContent = cfg.email; }
-  const usarVideo = (cfg.fondo ? cfg.fondo === 'video' : true) && cfg.videoUrl;
-  setVideo(usarVideo ? cfg.videoUrl : ''); aplicarFuentes();
+  const videoUrl = cfg.videoUrl || DEFAULT_VIDEO;
+  const usarVideo = cfg.fondo ? cfg.fondo === 'video' : true;
+  setVideo(usarVideo ? videoUrl : ''); aplicarFuentes();
   $('loader').classList.add('hide'); setTimeout(()=>$('loader').style.display='none',400);
   refreshSelUI();
 }
